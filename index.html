@@ -30,7 +30,6 @@
             </div>
             <div class="row">
                 <div class="col-sm-12">
-                    <h1 id="text"></h1>
                     <h1 id="player-one-wins"></h1>
                     <h1 id="player-two-wins"></h1>
                     <h1 id="ties"></h1>
@@ -38,45 +37,33 @@
             </div>
             <div class="row">
                 <div class="col-sm-10">
+                    <div class="row" id="game-area">
+                        <form>
+                            <div class="form-group">
+                                <label>Player One Name:</label>
+                                <input type="text" class="form-control" id="player-one-name"
+                                    placeholder="Player One Name">
+                            </div>
+                            <div class="form-group">
+                                <label>Player Two Name: </label>
+                                <input type="text" class="form-control" id="player-two-name"
+                                    placeholder="Player Two Name">
+                            </div>
+                            <button class="btn btn-primary" id="submit-name">Submit</button>
+                        </form>
+                    </div>
                     <div class="row">
-                        <div class="col-sm-12">
-                            <h1> Player One: </h1>
-                            <button class="btn btn-lg btn-primary player-one-btn" id="rock">ROCK</button>
-                            <button class="btn btn-lg btn-primary player-one-btn" id="paper">PAPER</button>
-                            <button class="btn btn-lg btn-primary player-one-btn" id="scissors">SCISSORS</button>
-                            <h1 class="player-one-guess"></h1>
-                        </div>
-                        <div class="col-sm-12">
-                            <h1> Player Two: </h1>
-                            <button class="btn btn-lg btn-primary player-two-btn" id="rock">ROCK</button>
-                            <button class="btn btn-lg btn-primary player-two-btn" id="paper">PAPER</button>
-                            <button class="btn btn-lg btn-primary player-two-btn" id="scissors">SCISSORS</button>
-                            <h1 class="player-two-guess"></h1>
-                        </div>
+                        <div class="col-4" id="player-one-guess"></div>
+                        <div class="col-4" id="player-two-guess"></div>
+                        <div class="col-4" id="round-winner"></div>
                     </div>
                 </div>
                 <div class="col-sm-2" id="chat-window">
-                    <h1>chat window</h1>
-                    <div id="chat-area"></div>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                        </div>
-                        <textarea class="form-control" id="user-text" aria-label="With textarea"></textarea>
-                        <button class="btn btn-lg btn-primary" id="submit">SUBMIT</button>
-                    </div>
+
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- <div>
-        <p id="directions-text">Press r, p or s to start playing!</p>
-        <p id="userchoice-text"></p>
-        <p id="computerchoice-text"></p>
-        <p id="wins-text"></p>
-        <p id="losses-text"></p>
-        <p id="ties-text"></p>
-    </div> -->
 
     <script src="./assets/javascript/app.js"></script>
 
