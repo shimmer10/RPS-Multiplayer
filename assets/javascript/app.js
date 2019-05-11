@@ -35,12 +35,12 @@ var chatButton;
 var playerOneWins = 0;
 var playerTwoWins = 0;
 var ties = 0;
+var playerOneGuessed = false;
+var playerTwoGuessed = false;
 var playerOneGuess;
 var playerTwoGuess;
 var playerOneName;
 var playerTwoName;
-var playerOneGuessed = false;
-var playerTwoGuessed = false;
 var roundWinner;
 
 
@@ -142,11 +142,15 @@ $(document).on("click", "#player-two-submit", function (e) {
 // this will grab the player one choice
 $(document).on("click", ".player-one-choice", function (e) {
     e.preventDefault();
+    if (playerOneGuessed != true) {
+        playerOneGuess = this.id;
+        console.log("player one guess: " + playerOneGuess)
+        playerOneGuessed = true;
+        database.ref().update({
+            playerOneGuess
+        });
+    }
 
-    playerOneGuess = this.id;
-    database.ref().update({
-        playerOneGuess
-    });
     database.ref().on("value", function (snapshot) {
         if (snapshot.child("playerTwoGuess").exists()) {
             playerTwoGuess = snapshot.val().playerTwoGuess
@@ -158,19 +162,34 @@ $(document).on("click", ".player-one-choice", function (e) {
 // this will grab the player two choice
 $(document).on("click", ".player-two-choice", function (e) {
     e.preventDefault();
-
-    playerTwoGuess = this.id;
-    playerTwoguessed = true;
-    // determine guess
-    database.ref().update({
-        playerTwoGuess
-    });
+    if (playerTwoGuessed != true) {
+        playerTwoGuess = this.id;
+        console.log("player two guess: " + playerTwoGuess)
+        playerTwoGuessed = true;
+        database.ref().update({
+            playerTwoGuess
+        });
+    }
     database.ref().on("value", function (snapshot) {
         if (snapshot.child("playerOneGuess").exists()) {
             playerOneGuess = snapshot.val().playerOneGuess
             checkGuesses(playerOneGuess, playerTwoGuess);
         }
     });
+});
+
+$(document).on("click", "#reset-button", function (e) {
+    e.preventDefault();
+
+    database.ref().update({
+        playerOneGuess: null,
+        playerTwoGuess: null,
+        playerOneWins: null,
+        playerTwoWins: null,
+        ties: null
+    });
+
+    createButtons();
 });
 
 function createButtons() {
@@ -186,7 +205,6 @@ function createButtons() {
     playerOneButton.appendTo(gameArea);
     playerTwoButton.appendTo(gameArea);
 };
-// });
 
 function buildPlayerScreen(playerNumber, playerName) {
     $("#game-area").empty();
@@ -228,11 +246,15 @@ function buildPlayerScreen(playerNumber, playerName) {
 
 function buildStats(playerOneName, playerTwoName) {
     database.ref().on("value", function (snapshot) {
-        playerOneWinDiv.text(playerOneName + " Wins: " + playerOneWins);
-        playerTwoWinDiv.text(playerTwoName + " Wins: " + playerTwoWins);
-
-        tiesDiv.text("Ties: " + ties);
+        playerOneWins = snapshot.val().playerOneWins;
+        playerTwoWins = snapshot.val().playerTwoWins;
+        ties = snapshot.val().ties;
     });
+
+    playerOneWinDiv.text(playerOneName + " Wins: " + playerOneWins);
+    playerTwoWinDiv.text(playerTwoName + " Wins: " + playerTwoWins);
+
+    tiesDiv.text("Ties: " + ties);
 }
 
 function buildChatWindow() {
@@ -251,29 +273,19 @@ function buildChatWindow() {
     chatWindowDiv.append(chatButton);
 }
 
-//     $(document).on("click", "#submit", function () {
-//         var chat = $("#user-text").val();
-//         var newChat = $("<div>", { text: chat });
-//         $("#chat-area").append(newChat);
-//         $("#user-text").val("");
-//     });
+$(document).on("click", "#submit", function () {
+    var chat = $("#user-text").val();
+    var newChat = $("<div>", { text: chat });
+    $("#chat-area").append(newChat);
+    $("#user-text").val("");
+});
 
-function otherPlayerGuessed(thisPlayer) {
-    if ((thisPlayer == "player-two-submit" && playerOneGuessed) || (thisPlayer == "player-one-submit" && playerTwoGuessed)) {
-        return true;
-    }
-    else {
-        return false;
-    }
-}
 
 function checkGuesses(playerOneGuess, playerTwoGuess) {
     database.ref().on("value", function (snapshot) {
         playerOneName = snapshot.val().playerOneName;
         playerTwoName = snapshot.val().playerTwoName;
     });
-
-    buildStats(playerOneName, playerTwoName);
 
     if ((playerOneGuess === "rock" && playerTwoGuess === "scissors") ||
         (playerOneGuess === "scissors" && playerTwoGuess === "paper") ||
@@ -287,6 +299,7 @@ function checkGuesses(playerOneGuess, playerTwoGuess) {
         playerTwoWins++;
         roundWinner = playerTwoName;
     }
+
     database.ref().update({
         playerOneGuess: null,
         playerTwoGuess: null,
@@ -302,7 +315,29 @@ function checkGuesses(playerOneGuess, playerTwoGuess) {
     $("#player-two-guess").text(playerTwoName + " guessed " + playerTwoGuess);
     $("#round-winner").text(roundWinner + " won!")
 
+    checkIfPlayerWon(playerOneName, playerTwoName)
 }
-//     });
-// });
 
+function checkIfPlayerWon(playerOneName, playerTwoName) {
+    database.ref().on("value", function (snapshot) {
+        playerOneWins = snapshot.val().playerOneWins;
+        playerTwoWins = snapshot.val().playerTwoWins;
+    });
+    buildStats(playerOneName, playerTwoName);
+
+    if (playerOneWins == 5 || playerTwoWins == 5) {
+        gameArea.empty;
+        if (playerOneWins == 5) {
+            var winnerIsOne = $("<h1>", { text: playerOneName + " won!" })
+            gameArea.append(winnerIsOne);
+        }
+        else {
+            var winnerIsTwo = $("<h1>", { text: playerTwoName + " won!" })
+            gameArea.append(winnerIsTwo);
+        }
+
+        var resetButton = $("<button>", { class: "btn btn-lg btn-secondary", id: "reset-button", text: "Play Again" })
+        gameArea.append(resetButton);
+
+    }
+}
